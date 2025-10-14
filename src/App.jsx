@@ -278,7 +278,7 @@ function SubscriptionForm({ answers, name }) {
 
     // !!! 중요 !!!
     // 아래 URL은 직접 생성한 Google Apps Script 웹 앱 URL로 교체해야 합니다.
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzoYN8UFiQIeTRHYSkCxx_WJRoyh8UbeSVlcMK_ZArDDoKRzcXWIMdjpn8pEVH1Ob3_/exec";
+    const SCRIPT_URL = import.meta.env.VITE_GAS_ENDPOINT;
 
     const formData = {
       timestamp: new Date().toLocaleString('ko-KR'),
