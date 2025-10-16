@@ -1,107 +1,96 @@
 import React, { useState } from 'react';
 
-// HELPER: 아이콘 SVG 컴포넌트들
-const CheckCircleIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-green-500"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-);
-const GiftIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-blue-500"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>
-);
-const AlertTriangleIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-yellow-500"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-);
+// HELPER: Icon SVG Components (Lucide icons using inline SVG)
+const GiftIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10 text-blue-500 mx-auto mb-4"><polyline points="20 12 20 22 4 22 4 12"></polyline><rect x="2" y="7" width="20" height="5"></rect><line x1="12" y1="22" x2="12" y2="7"></line><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"></path><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>);
+const CheckCircleIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-green-500"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>);
+const AlertTriangleIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-yellow-500"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>);
 
-// 데이터: 질문 목록
-const QUESTIONS = [
-  { key: 'age', text: '만 나이가 어떻게 되시나요?', options: ['50-59세', '60-64세', '65-74세', '75세 이상'] },
-  { key: 'region', text: '어디에 거주하고 계신가요?', options: ['서울', '그 외 지역'] },
-  { key: 'household', text: '가구 형태는 어떻게 되시나요?', options: ['혼자 산다', '배우자와 함께 산다'] },
-  { key: 'income', text: '부부 합산 월 소득은 어느 정도이신가요?', options: ['150만원 미만', '150만원 ~ 300만원', '300만원 이상'] },
-];
 
-// 데이터: 복지 혜택 정보 및 조건 (MVP 단순화)
-const ALL_BENEFITS = [
-  {
+// ★★★ DATA UPDATE: Reflecting real-world benefit criteria with varied questions ★★★
+const BENEFIT_FLOWS = {
+  basic_pension: {
     id: 'basic_pension',
     title: '기초연금',
-    description: '어르신들의 안정적인 소득 기반을 위한 제도로, 월 최대 약 33만원이 지급될 수 있습니다.',
-    details: '만 65세 이상, 소득 하위 70%에 해당될 경우 신청 가능합니다.',
-    isEligible: (answers) => {
-      const age = parseInt(answers.age?.slice(0, 2));
-      return age >= 65 && answers.income !== '300만원 이상';
-    },
-    category: '지금 받을 수 있는 혜택 💰'
+    description: '어르신들의 안정적인 노후 생활을 돕는 핵심 지원금',
+    // --- 4 Questions for Basic Pension ---
+    questions: [
+      { key: 'age_pension', text: '만 65세 이상 대한민국 국민이신가요?', options: ['예', '아니요'] },
+      { key: 'household_status', text: '가구 형태가 어떻게 되시나요?', options: ['혼자 삽니다 (단독가구)', '배우자와 함께 삽니다 (부부가구)', '자녀 등 다른 가족과 삽니다'] },
+      { key: 'income_level_pension', text: '가구의 월 소득과 재산을 합한 금액(소득인정액)이 정부 기준액 이하인가요?', options: ['예, 기준액 이하입니다', '아니요, 기준액을 초과합니다', '잘 모르겠습니다'] },
+      { key: 'is_public_servant', text: '공무원/사학/군인/별정우체국 연금 수급자 또는 그 배우자이신가요?', options: ['아니요', '예'] }
+    ],
+    getResult: (answers) => {
+      if (answers.age_pension === '예' && answers.income_level_pension === '예, 기준액 이하입니다' && answers.is_public_servant === '아니요') {
+        return { eligible: true, title: '기초연금', description: '기초연금 수급 대상이실 가능성이 매우 높습니다.', details: '2025년 기준 단독가구 월 최대 334,810원, 부부가구 월 최대 535,680원이 지급될 수 있습니다. 가까운 주민센터나 국민연금공단 지사(☎️1355)에 꼭 문의하여 신청하세요.' };
+      }
+      return { eligible: false, title: '기초연금', description: '아쉽지만 기초연금 수급 조건에 해당되지 않을 수 있습니다.', details: '기초연금은 만 65세 이상, 소득인정액 기준을 충족해야 하며, 특정 공무원연금 수급자는 제외될 수 있습니다. 조건이 매년 바뀌니 다시 확인해보시는 것을 추천합니다.' };
+    }
   },
-  {
-    id: 'telecom_discount',
-    title: '통신비 감면',
-    description: '기초연금 수급자이신 경우, 월 최대 11,000원의 통신요금을 감면받을 수 있습니다.',
-    details: '기초연금 대상자라면 통신사 고객센터(☎️114)를 통해 간편하게 신청할 수 있습니다.',
-    isEligible: (answers) => {
-      const age = parseInt(answers.age?.slice(0, 2));
-      return age >= 65 && answers.income !== '300만원 이상';
-    },
-    category: '지금 받을 수 있는 혜택 💰'
+  livelihood_benefit: {
+    id: 'livelihood_benefit',
+    title: '기초생활보장 생계급여',
+    description: '최저 생활을 보장하기 위한 생계비 지원',
+    // --- 3 Questions for Livelihood Benefit ---
+    questions: [
+      { key: 'household_size', text: '가구에 포함되는 총 가족 수는 몇 명인가요?', options: ['1인 가구', '2인 가구', '3인 가구', '4인 가구 이상'] },
+      { key: 'monthly_income', text: '가구의 한 달 총 소득이 얼마인가요?', options: ['100만원 이하', '100만원 ~ 200만원', '200만원 ~ 300만원', '300만원 이상'] },
+      { key: 'has_supporter', text: '부양의무자(1촌 직계혈족 및 그 배우자)가 없거나, 있어도 부양 능력이 없나요?', options: ['예', '아니요 (부양 가능한 가족이 있음)', '잘 모르겠습니다'] }
+    ],
+    getResult: (answers) => {
+      // Simplified logic for example
+      const income = parseInt(answers.monthly_income?.replace(/[^0-9]/g, '')) || 0;
+      const household_size = parseInt(answers.household_size?.replace(/[^0-9]/g, '')) || 1;
+      const income_threshold = household_size === 1 ? 710000 : 1200000; // 2025년 기준 중위소득 32% (매우 단순화된 예시)
+     
+      if (income <= income_threshold && answers.has_supporter === '예') {
+        return { eligible: true, title: '생계급여', description: '생계급여 수급 대상이실 가능성이 있습니다.', details: '정확한 소득 및 재산 조사, 부양의무자 기준 확인이 필요합니다. 거주지 주민센터에 방문하여 상담받아보세요.' };
+      }
+      return { eligible: false, title: '생계급여', description: '아쉽지만 생계급여 수급 기준을 초과할 수 있습니다.', details: '생계급여는 가구의 소득인정액이 생계급여 선정기준 이하일 때 지원됩니다. 부양의무자 기준도 충족해야 하지만, 일부 완화되는 경우도 있으니 주민센터 상담을 추천합니다.' };
+    }
   },
-  {
-    id: 'transport_discount',
-    title: '교통비 지원',
-    description: '만 65세 이상 어르신은 지하철을 무료로 이용할 수 있으며, 지자체별로 버스 요금 할인도 제공됩니다.',
-    details: '가까운 주민센터에서 어르신 교통카드를 발급받으세요.',
-    isEligible: (answers) => {
-      const age = parseInt(answers.age?.slice(0, 2));
-      return age >= 65;
-    },
-    category: '지금 받을 수 있는 혜택 💰'
+  long_term_care: {
+    id: 'long_term_care',
+    title: '노인장기요양보험',
+    description: '몸이 불편한 어르신을 위한 돌봄(요양) 서비스 지원',
+    // --- 5 Questions for Long-Term Care Insurance ---
+    questions: [
+        { key: 'age_care', text: '만 65세 이상이신가요? (65세 미만인 경우, 노인성 질병을 앓고 계신가요?)', options: ['만 65세 이상', '만 65세 미만, 노인성 질병 있음', '해당 없음'] },
+        { key: 'daily_living', text: '혼자 힘으로 식사, 옷 입기, 화장실 가기 등 일상생활을 수행하기 어려우신가요?', options: ['매우 어렵다', '조금 어렵다', '혼자서도 잘 할 수 있다'] },
+        { key: 'assistance_duration', text: '다른 사람의 도움이 필요한 상태가 얼마나 오래 지속되었나요?', options: ['6개월 이상', '6개월 미만'] },
+        { key: 'is_hospitalized', text: '현재 병원에 입원 중이신가요?', options: ['아니요', '예'] },
+        { key: 'residence_type', text: '주로 어디에 거주하고 계신가요?', options: ['자택', '요양원 등 시설'] }
+    ],
+    getResult: (answers) => {
+        if (answers.age_care !== '해당 없음' && answers.daily_living !== '혼자서도 잘 할 수 있다' && answers.assistance_duration === '6개월 이상' && answers.is_hospitalized === '아니요') {
+            return { eligible: true, title: '노인장기요양보험', description: '장기요양보험 등급을 신청하여 혜택을 받으실 수 있습니다!', details: '국민건강보험공단(☎️1577-1000)에 연락하여 장기요양 인정 신청을 하시면, 공단 직원이 방문하여 어르신의 심신 상태를 확인하고 등급을 판정합니다. 등급에 따라 방문요양, 주야간보호, 요양시설 입소 등의 서비스를 이용할 수 있습니다.' };
+        }
+        return { eligible: false, title: '노인장기요양보험', description: '아쉽지만 장기요양보험 신청 조건에 해당되지 않을 수 있습니다.', details: '장기요양보험은 6개월 이상 혼자서 일상생활을 수행하기 어려운 분을 대상으로 합니다. 병원 입원 중인 경우엔 퇴원 후 신청 가능합니다.' };
+    }
   },
-  {
-    id: 'energy_voucher',
-    title: '전기요금 및 에너지바우처',
-    description: '저소득 어르신 가구에 전기, 도시가스, 난방비 등 에너지 비용을 지원합니다.',
-    details: '소득 및 가구원 특성 기준 충족 시 신청 가능하며, 주민센터에 문의가 필요합니다.',
-    isEligible: (answers) => {
-      const age = parseInt(answers.age?.slice(0, 2));
-      return age >= 65 && answers.income === '150만원 미만';
-    },
-    category: '지금 받을 수 있는 혜택 💰'
-  },
-  {
-    id: 'seoul_support',
-    title: '서울시 어르신 추가 지원',
-    description: '서울시에 거주하는 어르신을 위해 추가적인 생활 안정 지원금이 있을 수 있습니다.',
-    details: '매년 정책이 달라지므로, 거주하시는 구청이나 주민센터의 공지를 확인하는 것이 좋습니다.',
-    isEligible: (answers) => {
-      const age = parseInt(answers.age?.slice(0, 2));
-      return age >= 65 && answers.region === '서울';
-    },
-    category: '지금 받을 수 있는 혜택 💰'
-  },
-  {
-    id: 'pre_welfare',
-    title: '예비 복지 안내',
-    description: '곧 다가올 65세를 대비하여 미리 알아두면 좋은 혜택들입니다.',
-    details: '기초연금, 교통비 지원 등은 만 65세부터 적용됩니다. 지금부터 미리 준비하고 계획하여 모든 혜택을 놓치지 마세요!',
-    isEligible: (answers) => {
-      const age = parseInt(answers.age?.slice(0, 2));
-      return age < 65;
-    },
-    category: '미리 준비하면 좋은 혜택 💎'
-  }
-];
+};
 
-// App: 메인 애플리케이션 컴포넌트
+
 export default function App() {
-  const [step, setStep] = useState('intro'); // 'intro', 'question', 'results'
+  const [step, setStep] = useState('intro'); // 'intro', 'selection', 'question', 'results'
+  const [name, setName] = useState('');
+  const [selectedFlow, setSelectedFlow] = useState(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState({});
-  const [eligibleBenefits, setEligibleBenefits] = useState([]);
-  const [name, setName] = useState('');
+  const [result, setResult] = useState(null);
 
   const handleStart = () => {
+    // Custom error handling instead of alert()
     if (name.trim() === '') {
-      alert('이름을 입력해주세요.');
+      // Using a simple state to show an error message instead of alert()
+      document.getElementById('name-input-error').textContent = '이름을 입력해주세요.';
       return;
     }
+    document.getElementById('name-input-error').textContent = '';
+    setStep('selection');
+  };
+
+  const handleFlowSelect = (flowId) => {
+    setSelectedFlow(flowId);
     setStep('question');
   };
 
@@ -109,57 +98,56 @@ export default function App() {
     const newAnswers = { ...answers, [key]: option };
     setAnswers(newAnswers);
 
-    if (currentQuestionIndex < QUESTIONS.length - 1) {
+    const questions = BENEFIT_FLOWS[selectedFlow].questions;
+    if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      calculateResults(newAnswers);
+      const finalResult = BENEFIT_FLOWS[selectedFlow].getResult(newAnswers);
+      setResult(finalResult);
       setStep('results');
     }
   };
 
-  const calculateResults = (finalAnswers) => {
-    const results = ALL_BENEFITS.filter(benefit => benefit.isEligible(finalAnswers));
-    setEligibleBenefits(results);
-  };
-
   const restart = () => {
-    setStep('intro');
+    setStep('selection');
+    setSelectedFlow(null);
     setCurrentQuestionIndex(0);
     setAnswers({});
-    setEligibleBenefits([]);
-    setName('');
+    setResult(null);
   };
 
-  const ProgressIndicator = () => (
-    <div className="w-full bg-slate-200 rounded-full h-2.5 mb-8 overflow-hidden">
-      <div
-        className="bg-blue-600 h-2.5 rounded-full transition-all duration-500"
-        style={{ width: `${((currentQuestionIndex + 1) / QUESTIONS.length) * 100}%` }}
-      />
-    </div>
-  );
+  const ProgressIndicator = () => {
+    const questions = BENEFIT_FLOWS[selectedFlow]?.questions || [];
+    const progress = questions.length > 0 ? ((currentQuestionIndex + 1) / questions.length) * 100 : 0;
+    return (
+      <div className="w-full bg-slate-200 rounded-full h-2.5 mb-8 overflow-hidden">
+        <div
+          className="bg-blue-600 h-2.5 rounded-full transition-all duration-500"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+    );
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 flex items-center py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 flex items-center py-8 px-4 font-['Inter']">
       <div className="w-full max-w-md mx-auto bg-white/90 backdrop-blur rounded-2xl shadow-xl border border-slate-200 p-6 md:p-8 transition-all">
-        
-        {/* 기존의 Tailwind Active 뱃지 삭제됨 */}
+       
+        {step === 'intro' && <IntroScreen name={name} setName={setName} onStart={handleStart} />}
 
-        {step === 'intro' && (
-          <IntroScreen name={name} setName={setName} onStart={handleStart} />
-        )}
+        {step === 'selection' && <SelectionScreen name={name} onSelect={handleFlowSelect} />}
 
-        {step === 'question' && (
+        {step === 'question' && selectedFlow && (
           <div>
             <ProgressIndicator />
             <h2 className="text-2xl font-bold tracking-tight text-gray-900 mb-6 text-center">
-              {QUESTIONS[currentQuestionIndex].text}
+              {BENEFIT_FLOWS[selectedFlow].questions[currentQuestionIndex].text}
             </h2>
             <div className="grid grid-cols-1 gap-3">
-              {QUESTIONS[currentQuestionIndex].options.map(option => (
+              {BENEFIT_FLOWS[selectedFlow].questions[currentQuestionIndex].options.map(option => (
                 <button
                   key={option}
-                  onClick={() => handleAnswer(QUESTIONS[currentQuestionIndex].key, option)}
+                  onClick={() => handleAnswer(BENEFIT_FLOWS[selectedFlow].questions[currentQuestionIndex].key, option)}
                   className="w-full text-base md:text-lg text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 px-6 rounded-lg shadow-md transition-transform active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
                 >
                   {option}
@@ -168,20 +156,18 @@ export default function App() {
             </div>
           </div>
         )}
-
-        {step === 'results' && (
-          <ResultsScreen name={name} benefits={eligibleBenefits} answers={answers} onRestart={restart} />
-        )}
+       
+        {step === 'results' && result && <ResultsScreen result={result} onRestart={restart} name={name} answers={answers} />}
 
         <footer className="text-center text-gray-500 mt-6 text-xs">
-          <p>본 서비스는 공공데이터를 기반으로 한 예상 정보이며, 실제 혜택은 소득, 재산 등 상세 조건에 따라 달라질 수 있습니다.</p>
+          <p>본 서비스는 예상 정보이며, 실제 혜택은 상세 조건에 따라 달라질 수 있습니다.</p>
         </footer>
       </div>
     </div>
   );
 }
 
-// IntroScreen: 시작 화면 컴포넌트
+// Screen 1: Intro Screen for name input
 function IntroScreen({ name, setName, onStart }) {
   return (
     <div className="text-center">
@@ -189,114 +175,135 @@ function IntroScreen({ name, setName, onStart }) {
       <h1 className="text-3xl font-bold tracking-tight text-gray-900 mt-4 mb-1">숨어있는 내 복지 혜택,</h1>
       <h1 className="text-3xl font-bold tracking-tight text-blue-600 mb-4">30초 만에 찾아보세요!</h1>
       <p className="text-gray-600 mb-6 text-sm">
-        몇 가지 질문에만 답하면 나와 우리 부모님이 받을 수 있는 혜택을 쉽고 빠르게 알려드립니다.
+        정확한 안내를 위해 먼저 성함을 입력해주세요.
       </p>
       <input
         type="text"
         value={name}
         onChange={(e) => setName(e.target.value)}
         placeholder="이름을 입력해주세요"
-        className="w-full text-base md:text-lg border-2 border-slate-300 rounded-lg p-3 mb-3 text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+        className="w-full text-base md:text-lg border-2 border-slate-300 rounded-lg p-3 mb-1 text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
       />
+      {/* Custom error message location */}
+      <p id="name-input-error" className="text-red-500 text-sm mb-3 h-5"></p>
       <button
         onClick={onStart}
         className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-8 rounded-lg shadow-md text-lg transition-transform active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-green-400"
       >
-        내 혜택 확인하기 💸
+        혜택 확인 시작하기 💸
       </button>
     </div>
   );
 }
 
-// ResultsScreen: 결과 화면 컴포넌트
-function ResultsScreen({ name, benefits, answers, onRestart }) {
-  const groupedBenefits = benefits.reduce((acc, benefit) => {
-    const category = benefit.category;
-    if (!acc[category]) acc[category] = [];
-    acc[category].push(benefit);
-    return acc;
-  }, {});
+// Screen 2: Benefit Selection Screen
+function SelectionScreen({ name, onSelect }) {
+  return (
+    <div className="text-center">
+      <h1 className="text-2xl font-bold tracking-tight text-gray-900 mb-2">
+        <span className="text-blue-600">{name}</span>님, 반갑습니다!
+      </h1>
+      <h2 className="text-3xl font-bold tracking-tight text-gray-900 mb-2">어떤 혜택이 궁금하세요?</h2>
+      <p className="text-gray-600 mb-8 text-sm">
+        알아보고 싶은 항목을 선택하면 바로 자격 여부를 알려드려요.
+      </p>
+      <div className="space-y-4">
+        {Object.values(BENEFIT_FLOWS).map(flow => (
+          <button
+            key={flow.id}
+            onClick={() => onSelect(flow.id)}
+            className="w-full text-left bg-slate-50 hover:bg-slate-100 border border-slate-200 p-4 rounded-lg transition-all"
+          >
+            <p className="font-bold text-lg text-blue-700">{flow.title}</p>
+            <p className="text-sm text-gray-600">{flow.description}</p>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
+// Screen 3: Results Screen with Subscription Form
+function ResultsScreen({ result, onRestart, name, answers }) {
   return (
     <div>
-      <h2 className="text-2xl font-bold tracking-tight text-center text-gray-900">
-        <span className="text-blue-600">{name}</span> 님을 위한
+      <h2 className="text-2xl font-bold tracking-tight text-center text-gray-900 mb-6">
+        <span className="text-blue-600">{name}</span>님의 '{result.title}' 확인 결과입니다!
       </h2>
-      <h2 className="text-2xl font-bold tracking-tight text-center text-gray-900 mb-6">맞춤 복지 혜택 결과입니다!</h2>
 
-      {Object.keys(groupedBenefits).map(category => (
-        <div key={category} className="mb-6">
-          <h3 className="text-lg md:text-xl font-semibold text-gray-800 mb-3 border-b pb-2 border-slate-200">{category}</h3>
-          {groupedBenefits[category].map(benefit => (
-            <div key={benefit.id} className="bg-slate-50/80 border border-slate-200 rounded-xl p-4 mb-3 shadow-sm">
-              <h4 className="font-bold text-lg text-blue-700">{benefit.title}</h4>
-              <p className="text-gray-700 text-sm mt-1">{benefit.description}</p>
-              <p className="text-xs text-gray-600 mt-2 bg-slate-100 p-2 rounded">{benefit.details}</p>
-            </div>
-          ))}
+      {result.eligible ? (
+        <div className="bg-green-50 border border-green-200 rounded-xl p-6 text-center shadow-sm">
+          <div className="flex justify-center"><CheckCircleIcon /></div>
+          <h3 className="font-bold text-xl text-green-800 mt-3">혜택을 받으실 수 있어요!</h3>
+          <p className="text-gray-700 mt-2">{result.description}</p>
+          <p className="text-xs text-gray-600 mt-4 bg-green-100 p-2 rounded">{result.details}</p>
         </div>
-      ))}
-
-      {benefits.length === 0 && (
-        <div className="text-center bg-gray-50 border border-slate-200 p-6 rounded-xl">
-          <AlertTriangleIcon />
-          <p className="mt-2 text-gray-800 font-semibold">현재 조건에 맞는 혜택을 찾지 못했습니다.</p>
-          <p className="text-sm text-gray-600 mt-1">하지만 복지 정책은 계속 바뀌니, 새로운 소식을 받아보시는 걸 추천드려요!</p>
+      ) : (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 text-center shadow-sm">
+          <div className="flex justify-center"><AlertTriangleIcon /></div>
+          <h3 className="font-bold text-xl text-yellow-800 mt-3">지금은 해당되지 않아요</h3>
+          <p className="text-gray-700 mt-2">{result.description}</p>
+          <p className="text-xs text-gray-600 mt-4 bg-yellow-100 p-2 rounded">{result.details}</p>
         </div>
       )}
-
-      <SubscriptionForm answers={answers} name={name} />
+     
+      <SubscriptionForm answers={answers} name={name} result={result} />
 
       <button
         onClick={onRestart}
-        className="w-full mt-6 bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-transform active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
+        className="w-full mt-8 bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-transform active:scale-[0.99]"
       >
-        처음부터 다시하기
+        다른 혜택 알아보기
       </button>
     </div>
   );
 }
 
-// SubscriptionForm: 구글 시트 연동을 위한 전화번호 입력 폼
-function SubscriptionForm({ answers, name }) {
+// Component for Google Sheets integration
+function SubscriptionForm({ answers, name, result }) {
   const [phone, setPhone] = useState('');
   const [status, setStatus] = useState('idle'); // 'idle', 'submitting', 'success', 'error'
   const [errorMsg, setErrorMsg] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // 간단한 전화번호 형식 검증
+    
+    // Simple client-side validation, using state instead of alert()
     if (!/^\d{10,11}$/.test(phone.replace(/-/g, ''))) {
-      alert('올바른 휴대폰 번호 10~11자리를 입력해주세요.');
+      setErrorMsg('올바른 휴대폰 번호 10~11자리를 입력해주세요.');
       return;
     }
-
+    setErrorMsg('');
     setStatus('submitting');
+   
+    // !!! IMPORTANT !!! Replaced with the URL from VITE_GAS_ENDPOINT
+    const SCRIPT_URL = import.meta.env.VITE_GAS_ENDPOINT; 
 
-    // !!! 중요 !!!
-    // 아래 URL은 직접 생성한 Google Apps Script 웹 앱 URL로 교체해야 합니다.
-    const SCRIPT_URL = import.meta.env.VITE_GAS_ENDPOINT;
-
+    // This object structure is flexible.
+    // The smart Apps Script will create columns for any new keys sent from here.
     const formData = {
       timestamp: new Date().toLocaleString('ko-KR'),
       name,
       phone,
+      benefitTitle: result.title, // Key field to distinguish the benefit type
       ...answers,
     };
 
     fetch(SCRIPT_URL, {
       method: 'POST',
-      mode: 'no-cors', // Google Script는 CORS 응답을 제대로 처리하지 않으므로 no-cors 모드 사용
+      mode: 'no-cors', // Must be 'no-cors' for Google Apps Script deployment
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData),
     })
       .then(() => {
+        // Since mode is 'no-cors', we can't reliably check the response status (it will always be opaque)
+        // We assume success here after the request is sent without immediate network errors.
         setStatus('success');
         setPhone('');
       })
       .catch(err => {
-        console.error('Error:', err);
-        setErrorMsg('신청 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+        console.error('Error submitting form:', err);
+        setErrorMsg('신청 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요. (콘솔 로그 확인)');
         setStatus('error');
       });
   };
@@ -313,9 +320,9 @@ function SubscriptionForm({ answers, name }) {
 
   return (
     <div className="mt-8 bg-blue-50/70 border-2 border-blue-200 border-dashed p-6 rounded-xl text-center">
-      <h3 className="font-bold text-lg text-gray-900">복지 정책, 매년 바뀌는 것 알고 계셨나요?</h3>
+      <h3 className="font-bold text-lg text-gray-900">새로운 복지 소식을 가장 먼저 받아보세요!</h3>
       <p className="text-gray-700 mt-2 mb-4 text-sm">
-        신청 기간을 놓치거나, 나에게 맞는 새로운 혜택이 생겼을 때 가장 먼저 알림을 받아보세요.
+        신청 기간을 놓치거나, 나에게 맞는 새로운 혜택이 생겼을 때 알림을 보내드려요.
       </p>
       <form onSubmit={handleSubmit}>
         <input
