@@ -5,7 +5,7 @@ const GiftIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" width="24" heig
 const CheckCircleIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-green-500"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>);
 const AlertTriangleIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-yellow-500"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>);
 
-// ★★★ URL UPDATE: 모든 링크를 각 기관의 공식 '메인 페이지'로 수정 ★★★
+// URL UPDATE: 모든 링크를 각 기관의 공식 '메인 페이지'로 수정
 const BENEFIT_FLOWS = {
   basic_pension: {
     id: 'basic_pension',
@@ -309,14 +309,14 @@ function SelectionScreen({ name, onSelect }) {
 
 function ResultsScreen({ result, onRestart, name, answers }) {
   
-  // ▼▼▼ [수정] 공유 섹션 렌더링 함수 ▼▼▼
   const renderShareSection = () => {
     const handleCopyLink = async () => {
-      // ★★★ 배포된 실제 서비스 URL로 변경하세요 ★★★
-      const shareUrl = "https://your-service-url.com";
+      // ▼▼▼ [수정] 알려주신 주소로 변경했습니다 ▼▼▼
+      const shareUrl = "https://demoday-wine.vercel.app/";
+      // ▲▲▲ [수정] 알려주신 주소로 변경했습니다 ▲▲▲
       try {
         await navigator.clipboard.writeText(shareUrl);
-        alert('주소가 복사되었습니다! 카톡대화에 붙여넣기 해보세요.');
+        alert('주소가 복사되었습니다! 친구에게 붙여넣기 해보세요.');
       } catch (err) {
         console.error('클립보드 복사 실패:', err);
         alert('주소 복사에 실패했어요. 다시 시도해주세요.');
@@ -325,21 +325,19 @@ function ResultsScreen({ result, onRestart, name, answers }) {
     
     return (
         <div className="mt-8 text-center bg-gray-50 p-4 rounded-lg border">
-            <h4 className="font-semibold text-gray-700 text-base">좋은 소식은 함께 나눠야죠 😊</h4>
+            <h4 className="font-semibold text-gray-700 text-base">이 좋은 서비스를 지인에게 알려주세요!</h4>
             <p className="text-xs text-gray-500 mt-1 mb-3">
-            가족과 친구에게 공유해, 다 같이 혜택 받아보세요!
+                가족과 친구에게 공유해, 함께 혜택을 찾아보세요.
             </p>
             <button
                 onClick={handleCopyLink}
                 className="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-2.5 px-4 rounded-lg transition-all text-sm"
             >
-                🔗 주소 복사하기
+                🔗 서비스 주소 복사하기
             </button>
         </div>
     );
   };
-  // ▲▲▲ [수정] 공유 섹션 렌더링 함수 ▲▲▲
-
 
   return (
     <div>
@@ -375,9 +373,7 @@ function ResultsScreen({ result, onRestart, name, answers }) {
       
       <SubscriptionForm answers={answers} name={name} result={result} />
       
-      {/* ▼▼▼ [수정] 공유 섹션 호출 ▼▼▼ */}
       {renderShareSection()}
-      {/* ▲▲▲ [수정] 공유 섹션 호출 ▲▲▲ */}
 
       <button
         onClick={onRestart}
