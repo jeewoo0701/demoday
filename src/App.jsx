@@ -314,7 +314,7 @@ function ResultsScreen({ result, onRestart, name, answers }) {
       const shareUrl = "https://demoday-wine.vercel.app/";
       try {
         await navigator.clipboard.writeText(shareUrl);
-        alert('주소가 복사되었습니다! 친구에게 붙여넣기 해보세요.');
+        alert('주소가 복사되었습니다! 카톡, 문자에 붙여넣기 해보세요.');
       } catch (err) {
         console.error('클립보드 복사 실패:', err);
         alert('주소 복사에 실패했어요. 다시 시도해주세요.');
@@ -445,11 +445,11 @@ function SubscriptionForm({ answers, name, result }) {
     // 전략 1 & 2: 결과에 따라 다른 제목과 내용 보여주기
     const content = {
         eligible: {
-            title: "혜택 신청, 잊지 않게 챙겨드릴게요!",
-            description: "신청 기간을 놓치면 계속 기다려야 해요. 깜빡하지 않도록 알림을 보내드릴게요."
+            title: "놓치면 다시 기다려야 해요 😢",
+            description: "걱정 마세요, 제가 대신 챙겨드릴게요! 신청 시기 되면 바로 알려드릴게요 🔔"
         },
         notEligible: {
-            title: "아쉬우신가요? 기회는 또 있습니다!",
+            title: "아쉬우신가요? 기회는 또 있습니다!😊",
             description: "정부 정책은 매번 바뀌어요. 대상이 되거나 새로운 맞춤 혜택이 생기면 가장 먼저 알려드릴게요."
         }
     };
