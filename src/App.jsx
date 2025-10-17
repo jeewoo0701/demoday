@@ -445,12 +445,12 @@ function SubscriptionForm({ answers, name, result }) {
     // 전략 1 & 2: 결과에 따라 다른 제목과 내용 보여주기
     const content = {
         eligible: {
-            title: "혜택 신청, 잊지 않게 챙겨드릴게요!",
+            title: "혜택 신청, 잊지 않게 챙겨드릴게요!😁",
             description: "신청 기간을 놓치면 내년까지 기다려야 해요. 깜빡하지 않도록 알림을 보내드릴게요."
         },
         notEligible: {
-            title: "아쉬우신가요? 기회는 또 있습니다!",
-            description: "정부 정책은 매년 바뀌어요. 내년에 대상이 되거나 새로운 맞춤 혜택이 생기면 가장 먼저 알려드릴게요."
+            title: "아쉬우신가요? 기회는 또 있습니다!😊",
+            description: "정부 정책은 매번 바뀌어요. 대상이 되거나 새로운 맞춤 혜택이 생기면 가장 먼저 알려드릴게요."
         }
     };
 
