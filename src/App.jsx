@@ -369,7 +369,7 @@ function ResultsScreen({ result, onRestart, name, answers }) {
 
       try {
         await navigator.clipboard.writeText(shareUrl);
-        alert('주소가 복사되었습니다! 친구에게 붙여넣기 해보세요.');
+        alert('주소가 복사되었습니다! 카톡, 문자에 붙여넣기 해보세요!');
       } catch (err) {
         console.error('클립보드 복사 실패:', err);
         alert('주소 복사에 실패했어요. 다시 시도해주세요.');
