@@ -311,9 +311,7 @@ function ResultsScreen({ result, onRestart, name, answers }) {
   
   const renderShareSection = () => {
     const handleCopyLink = async () => {
-      // ▼▼▼ [수정] 알려주신 주소로 변경했습니다 ▼▼▼
       const shareUrl = "https://demoday-wine.vercel.app/";
-      // ▲▲▲ [수정] 알려주신 주소로 변경했습니다 ▲▲▲
       try {
         await navigator.clipboard.writeText(shareUrl);
         alert('주소가 복사되었습니다! 친구에게 붙여넣기 해보세요.');
@@ -371,7 +369,9 @@ function ResultsScreen({ result, onRestart, name, answers }) {
         </div>
       )}
       
+      {/* ▼▼▼ [수정] result 객체를 SubscriptionForm에 props로 전달 ▼▼▼ */}
       <SubscriptionForm answers={answers} name={name} result={result} />
+      {/* ▲▲▲ [수정] result 객체를 SubscriptionForm에 props로 전달 ▲▲▲ */}
       
       {renderShareSection()}
 
@@ -385,10 +385,13 @@ function ResultsScreen({ result, onRestart, name, answers }) {
   );
 }
 
+// ▼▼▼ [핵심 수정] 이탈 방지 전략이 적용된 SubscriptionForm 컴포넌트 ▼▼▼
 function SubscriptionForm({ answers, name, result }) {
     const [phone, setPhone] = useState('');
     const [status, setStatus] = useState('idle');
     const [errorMsg, setErrorMsg] = useState('');
+
+    const isEligible = result.eligible; // 결과값 (true or false)
   
     const handleSubmit = (e) => {
       e.preventDefault();
@@ -434,16 +437,31 @@ function SubscriptionForm({ answers, name, result }) {
         <div className="mt-8 bg-green-50 border border-green-200 text-green-800 p-4 rounded-xl text-center">
           <div className="flex justify-center"><CheckCircleIcon /></div>
           <p className="font-bold mt-2">신청이 완료되었습니다!</p>
-          <p className="text-sm">새로운 복지 혜택이 생기면 가장 먼저 알려드릴게요.</p>
+          <p className="text-sm">좋은 소식이 생기면 가장 먼저 알려드릴게요.</p>
         </div>
       );
     }
   
+    // 전략 1 & 2: 결과에 따라 다른 제목과 내용 보여주기
+    const content = {
+        eligible: {
+            title: "혜택 신청, 잊지 않게 챙겨드릴게요!",
+            description: "신청 기간을 놓치면 계속 기다려야 해요. 깜빡하지 않도록 알림을 보내드릴게요."
+        },
+        notEligible: {
+            title: "아쉬우신가요? 기회는 또 있습니다!",
+            description: "정부 정책은 매번 바뀌어요. 대상이 되거나 새로운 맞춤 혜택이 생기면 가장 먼저 알려드릴게요."
+        }
+    };
+
+    const currentContent = isEligible ? content.eligible : content.notEligible;
+
     return (
-      <div className="mt-8 bg-blue-50/70 border-2 border-blue-200 border-dashed p-6 rounded-xl text-center">
-        <h3 className="font-bold text-lg text-gray-900">새로운 복지 소식을 가장 먼저 받아보세요!</h3>
+      // 전략 3: UI의 심리적 장벽 낮추기 (눈에 띄는 파란 점선 제거)
+      <div className="mt-8 bg-slate-50 border border-slate-200 p-6 rounded-xl text-center">
+        <h3 className="font-bold text-lg text-gray-900">{currentContent.title}</h3>
         <p className="text-gray-700 mt-2 mb-4 text-sm">
-          신청 기간을 놓치거나, 나에게 맞는 새로운 혜택이 생겼을 때 알림을 보내드려요.
+          {currentContent.description}
         </p>
         <form onSubmit={handleSubmit}>
           <input
@@ -464,7 +482,7 @@ function SubscriptionForm({ answers, name, result }) {
     
           {status === 'submitting' && (
             <p className="text-gray-500 text-sm mt-2">
-              3초면 준비 끝! 좋은 소식을 놓치지 않도록 꼼꼼히 기억하는 중이에요.😁
+              잠시만 기다려주세요. 좋은 소식을 놓치지 않도록 꼼꼼히 기억하는 중이에요.😁
             </p>
           )}
     
@@ -474,3 +492,4 @@ function SubscriptionForm({ answers, name, result }) {
       </div>
     );
   }
+// ▲▲▲ [핵심 수정] 이탈 방지 전략이 적용된 SubscriptionForm 컴포넌트 ▲▲▲
