@@ -6,13 +6,14 @@ const GiftIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" width="24" heig
 const CheckCircleIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-green-500"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>);
 const AlertTriangleIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-8 h-8 text-yellow-500"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>);
 const BackArrowIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> );
+const LockIcon = () => ( <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> );
 
 // [GA] .env 파일에 저장된 GA 측정 ID를 가져옵니다.
 const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID;
 
 // [GA] GA 초기화
 if (GA_MEASUREMENT_ID) {
-  ReactGA.initialize(GA_MEASUREMENT_ID);
+  ReactGA.initialize(GA_MEASUREMENT_ID);
 }
 
 const BENEFIT_FLOWS = {
@@ -231,14 +232,14 @@ export default function App() {
     setAnswers({});
     setResult(null);
   };
-  
-  const handleGoBack = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
-    } else {
-      restart();
-    }
-  };
+  
+  const handleGoBack = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
+    } else {
+      restart();
+    }
+  };
     
   const ProgressIndicator = () => {
     const questions = BENEFIT_FLOWS[selectedFlow]?.questions || [];
@@ -358,14 +359,14 @@ function ResultsScreen({ result, onRestart, name, answers }) {
   
   const renderShareSection = () => {
     const handleCopyLink = async () => {
-      const shareUrl = "https://demoday-wine.vercel.app/";
+      const shareUrl = "https://demoday-wine.vercel.app/"; // 이 링크는 실제 서비스 주소로 변경 필요
 
-      // [GA] 공유하기 버튼 클릭 이벤트
-      ReactGA.event({
-        category: "Engagement",
-        action: "Click Share Link",
-        label: result.title
-      });
+      // [GA] 공유하기 버튼 클릭 이벤트
+      ReactGA.event({
+        category: "Engagement",
+        action: "Click Share Link",
+        label: result.title
+      });
 
       try {
         await navigator.clipboard.writeText(shareUrl);
@@ -409,15 +410,13 @@ function ResultsScreen({ result, onRestart, name, answers }) {
               href={result.link}
               target="_blank"
               rel="noopener noreferrer"
-              // ▼▼▼ [GA] 외부 링크 클릭 이벤트 추적 ▼▼▼
-              onClick={() => {
-                ReactGA.event({
-                  category: "Outbound Link",
-                  action: "Click Official Site",
-                  label: result.title
-                });
-              }}
-              // ▲▲▲ [GA] 외부 링크 클릭 이벤트 추적 ▲▲▲
+              onClick={() => {
+                ReactGA.event({
+                  category: "Outbound Link",
+                  action: "Click Official Site",
+                  label: result.title
+                });
+              }}
               className="block w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md text-base transition-transform active:scale-[0.99]"
             >
               {result.linkText || '자세히 보기'}
@@ -440,23 +439,34 @@ function ResultsScreen({ result, onRestart, name, answers }) {
       <button
         onClick={onRestart}
         className="w-full mt-4 bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-transform active:scale-[0.99]"
-      >
+t   >
         다른 혜택 알아보기
       </button>
     </div>
   );
 }
 
+//
+// [최종] Notion 링크가 적용된 SubscriptionForm
+//
 function SubscriptionForm({ answers, name, result }) {
     const [phone, setPhone] = useState('');
     const [status, setStatus] = useState('idle');
     const [errorMsg, setErrorMsg] = useState('');
+    const [isAgreed, setIsAgreed] = useState(false); // <-- 동의 상태
 
     const isEligible = result.eligible; 
   
     const handleSubmit = (e) => {
       e.preventDefault();
       
+      // 동의 여부 확인
+      if (!isAgreed) {
+          setErrorMsg('개인정보 수집 및 이용에 동의해주세요.');
+          return;
+      }
+
+      // 휴대폰 번호 유효성 검사
       if (!/^\d{10,11}$/.test(phone.replace(/-/g, ''))) {
         setErrorMsg('올바른 휴대폰 번호 10~11자리를 입력해주세요.');
         return;
@@ -464,13 +474,13 @@ function SubscriptionForm({ answers, name, result }) {
       setErrorMsg('');
       setStatus('submitting');
       
-      // [GA] 가장 중요한 전환 이벤트: 알림 신청
-      ReactGA.event({
-        category: "Conversion",
-        action: "Submit Phone Number",
-        label: result.title,
-        value: isEligible ? 1 : 0 // 대상자는 1, 비대상자는 0으로 값을 보내 데이터 분석에 활용
-      });
+      // [GA] 전환 이벤트
+      ReactGA.event({
+        category: "Conversion",
+        action: "Submit Phone Number",
+        label: result.title,
+        value: isEligible ? 1 : 0
+      });
 
       const SCRIPT_URL = import.meta.env.VITE_GAS_ENDPOINT; 
   
@@ -482,6 +492,7 @@ function SubscriptionForm({ answers, name, result }) {
         ...answers,
       };
   
+      // Google Apps Script로 데이터 전송
       fetch(SCRIPT_URL, {
         method: 'POST',
         mode: 'no-cors',
@@ -492,6 +503,7 @@ function SubscriptionForm({ answers, name, result }) {
           setTimeout(() => {
             setStatus('success');
             setPhone('');
+            setIsAgreed(false); 
           }, 2000); 
         })
         .catch(err => {
@@ -501,6 +513,7 @@ function SubscriptionForm({ answers, name, result }) {
         });
     };
   
+    // 신청 완료 시 UI
     if (status === 'success') {
       return (
         <div className="mt-8 bg-green-50 border border-green-200 text-green-800 p-4 rounded-xl text-center">
@@ -511,6 +524,7 @@ function SubscriptionForm({ answers, name, result }) {
       );
     }
   
+    // 대상자/비대상자별 컨텐츠
     const content = {
         eligible: {
             title: "혜택 신청, 잊지 않게 챙겨드릴게요!😁",
@@ -524,29 +538,63 @@ function SubscriptionForm({ answers, name, result }) {
 
     const currentContent = isEligible ? content.eligible : content.notEligible;
 
+    // 기본 신청 폼 UI
     return (
       <div className="mt-8 bg-slate-50 border border-slate-200 p-6 rounded-xl text-center">
         <h3 className="font-bold text-lg text-gray-900">{currentContent.title}</h3>
         <p className="text-gray-700 mt-2 mb-4 text-sm">
           {currentContent.description}
         </p>
+<p className="text-sm font-semibold text-green-700 text-center mb-4">
+          ✅ 광고/스팸 0% 보장. 혜택 정보만 보내드려요.
+        </p>
         <form onSubmit={handleSubmit}>
-          <input
-            type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="알림 받을 휴대폰 번호 ('-' 없이 입력)"
-            className="w-full text-base md:text-lg border-2 border-slate-300 rounded-lg p-3 text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 disabled:bg-slate-100"
-            disabled={status === 'submitting'}
-          />
+          {/* 잠금 아이콘이 포함된 입력 필드 */}
+          <div className="relative">
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="알림 받을 휴대폰 번호 ('-' 없이 입력)"
+              className="w-full text-base md:text-lg border-2 border-slate-300 rounded-lg p-3 text-center focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 disabled:bg-slate-100 pl-10"
+              disabled={status === 'submitting'}
+            />
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+              <LockIcon />
+            </span>
+          </div>
+
+          {/* Notion 링크가 적용된 개인정보 동의 체크박스 */}
+          <div className="text-xs text-gray-500 mt-3 text-left">
+            <input
+              type="checkbox"
+              id="privacy-agree"
+              checked={isAgreed}
+              onChange={(e) => setIsAgreed(e.target.checked)}
+              className="mr-1.5 align-middle"
+            />
+            <label htmlFor="privacy-agree" className="align-middle">
+              (필수) <a 
+                href="https://everlasting-quiet-945.notion.site/290c275af41280829b03c6a7424e3900?source=copy_link"
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="underline text-blue-600 hover:text-blue-700"
+              >
+                개인정보 수집 및 이용
+              </a>에 동의합니다.
+            </label>
+          </div>
+
           <button
             type="submit"
-            className={`w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-transform active:scale-[0.99] disabled:bg-gray-400 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 ${status === 'submitting' ? 'animate-pulse' : ''}`}
-            disabled={status === 'submitting'}
-          >
+            // 동의해야 버튼 활성화
+            disabled={status === 'submitting' || !isAgreed}
+            className={`w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-all active:scale-[0.99] disabled:bg-gray-400 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 ${status === 'submitting' ? 'animate-pulse' : ''}`}
+Such         >
             {status === 'submitting' ? '신청하는 중...' : '무료로 알림 받기 🔔'}
           </button>
     
+          {/* 로딩 및 에러 메시지 */}
           {status === 'submitting' && (
             <p className="text-gray-500 text-sm mt-2">
               잠시만 기다려주세요. 좋은 소식을 놓치지 않도록 꼼꼼히 기억하는 중이에요.😁
